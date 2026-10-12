@@ -16,7 +16,7 @@ import logging
 
 from company_agent.contracts.request import CompanyResearchRequest
 from company_agent.contracts.response import CompanyResearchResponse
-from company_agent.domain.enums import WorkProductStatus
+from shared.domain.enums import WorkProductStatus
 from company_agent.tools.registry import ToolRegistry
 from company_agent.workflow.context import WorkflowContext
 from company_agent.workflow.pipeline import ResearchPipeline

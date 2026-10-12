@@ -1,41 +1,23 @@
-"""Domain models for the Company Agent."""
+"""Domain models — re-exported from the shared package for backward compatibility.
 
-from company_agent.domain.enums import (
-    ClaimStatus,
-    ClaimType,
-    InvocationContext,
-    MarketCapClassification,
-    ResearchDepth,
-    SourceTier,
-    WorkProductStatus,
+All domain models now live in the shared package. This module
+re-exports them so existing code can still import from
+company_agent.domain if needed, but new code should import
+from shared.domain directly.
+"""
+
+from shared.domain import (
+    ClaimStatus, ClaimType, InvocationContext, MarketCapClassification,
+    ResearchDepth, SourceTier, WorkProductStatus,
+    ExchangeListing, IssuerIdentity, SecurityIdentity, IdentityResolution,
+    EvidenceRecord, SourceMetadata,
+    Claim, MarketCapResult,
 )
-from company_agent.domain.identity import (
-    ExchangeListing,
-    IssuerIdentity,
-    SecurityIdentity,
-    IdentityResolution,
-)
-from company_agent.domain.evidence import (
-    EvidenceRecord,
-    SourceMetadata,
-)
-from company_agent.domain.claims import Claim
-from company_agent.domain.market_cap import MarketCapResult
 
 __all__ = [
-    "ClaimStatus",
-    "ClaimType",
-    "InvocationContext",
-    "MarketCapClassification",
-    "ResearchDepth",
-    "SourceTier",
-    "WorkProductStatus",
-    "ExchangeListing",
-    "IssuerIdentity",
-    "SecurityIdentity",
-    "IdentityResolution",
-    "EvidenceRecord",
-    "SourceMetadata",
-    "Claim",
-    "MarketCapResult",
+    "ClaimStatus", "ClaimType", "InvocationContext", "MarketCapClassification",
+    "ResearchDepth", "SourceTier", "WorkProductStatus",
+    "ExchangeListing", "IssuerIdentity", "SecurityIdentity", "IdentityResolution",
+    "EvidenceRecord", "SourceMetadata",
+    "Claim", "MarketCapResult",
 ]

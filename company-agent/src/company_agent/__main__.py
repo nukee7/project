@@ -1,8 +1,9 @@
 """Entry point for: python -m company_agent
 
-Routes to the correct runner based on --test flag:
+Three modes:
     python -m company_agent          → starts production API server
-    python -m company_agent --test   → runs test examples with stubs
+    python -m company_agent --test   → runs test examples with all stubs
+    python -m company_agent --live   → runs with real OpenAI LLM + stub data
 """
 
 import sys
@@ -10,6 +11,10 @@ import sys
 if "--test" in sys.argv:
     import asyncio
     from company_agent.testing.example_runner import main
+    asyncio.run(main())
+elif "--live" in sys.argv:
+    import asyncio
+    from company_agent.testing.live_llm_runner import main
     asyncio.run(main())
 else:
     from company_agent.main import main

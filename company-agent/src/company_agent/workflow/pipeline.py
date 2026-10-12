@@ -11,7 +11,7 @@ import logging
 import time
 
 from company_agent.contracts.response import CompanyResearchResponse
-from company_agent.domain.enums import WorkProductStatus
+from shared.domain.enums import WorkProductStatus
 from company_agent.workflow.context import WorkflowContext
 from company_agent.workflow.steps import (
     PipelineStep,

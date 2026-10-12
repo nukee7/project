@@ -31,8 +31,8 @@ from company_agent.contracts.response import (
     ThesisSection,
     ValuationContextSection,
 )
-from company_agent.domain.claims import Claim
-from company_agent.domain.enums import (
+from shared.domain.claims import Claim
+from shared.domain.enums import (
     ClaimStatus,
     ClaimType,
     InvocationContext,
@@ -41,9 +41,9 @@ from company_agent.domain.enums import (
     SourceTier,
     WorkProductStatus,
 )
-from company_agent.domain.evidence import SourceMetadata
-from company_agent.domain.identity import IdentityResolution
-from company_agent.domain.market_cap import MarketCapResult
+from shared.domain.evidence import SourceMetadata
+from shared.domain.identity import IdentityResolution
+from shared.domain.market_cap import MarketCapResult
 
 
 # ============================================================

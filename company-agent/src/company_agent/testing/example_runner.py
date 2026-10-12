@@ -21,7 +21,7 @@ from company_agent.contracts.request import (
     AuthorizedSources,
     CompanyResearchRequest,
 )
-from company_agent.domain.enums import InvocationContext, ResearchDepth
+from shared.domain.enums import InvocationContext, ResearchDepth
 from company_agent.testing.stubs import create_stub_registry
 
 

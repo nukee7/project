@@ -33,8 +33,8 @@ from company_agent.contracts.response import (
     ThesisSection,
     ValuationContextSection,
 )
-from company_agent.domain.claims import Claim
-from company_agent.domain.enums import (
+from shared.domain.claims import Claim
+from shared.domain.enums import (
     ClaimStatus,
     ClaimType,
     MarketCapClassification,
