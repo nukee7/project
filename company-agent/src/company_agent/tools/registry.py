@@ -19,6 +19,7 @@ from company_agent.tools.base import (
     GetValuationContext,
     RetrieveSourceRecord,
     SearchPrimarySources,
+    SearchSecondarySources,
 )
 from company_agent.tools.llm.base import LLMProvider
 
@@ -37,5 +38,6 @@ class ToolRegistry:
     search_primary_sources: SearchPrimarySources
     retrieve_source_record: RetrieveSourceRecord
     extract_evidence: ExtractEvidence
+    search_secondary_sources: SearchSecondarySources
     get_valuation_context: GetValuationContext
     llm: LLMProvider

@@ -19,6 +19,7 @@ from company_agent.workflow.steps import (
     Step1AMarketCapClassification,
     Step2ResearchPlan,
     Step3RetrieveEvidence,
+    Step3ASecondaryReporting,
     Step4ExtractEvidence,
     Step5SynthesizeResearch,
     Step6BuildWorkProduct,
@@ -58,6 +59,7 @@ class ResearchPipeline:
             Step1AMarketCapClassification(),
             Step2ResearchPlan(),
             Step3RetrieveEvidence(),
+            Step3ASecondaryReporting(),
             Step4ExtractEvidence(),
             Step5SynthesizeResearch(),
         ]

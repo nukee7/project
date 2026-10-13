@@ -5,6 +5,7 @@ shared package. This file contains only Company Agent-specific tools:
 - SearchPrimarySources (filing/document search)
 - RetrieveSourceRecord (document fetching)
 - ExtractEvidence (document parsing)
+- SearchSecondarySources (news, analyst, credit ratings)
 - GetValuationContext (valuation engine)
 """
 
@@ -97,4 +98,31 @@ class GetValuationContext(ABC):
         as_of_date: object | None = None,
         metrics: list[str] | None = None,
     ) -> dict[str, object]:
+        ...
+
+
+class SearchSecondarySources(ABC):
+    """Gather secondary reporting — news, analyst views, credit ratings.
+
+    Unlike primary sources (company filings), secondary sources are
+    written by third parties about the company. This tool searches
+    and extracts in one call since secondary sources are short
+    (articles, not 200-page filings).
+
+    Returns EvidenceRecords directly (not SourceMetadata for later retrieval),
+    because each article/item is small enough to process inline.
+
+    Guardrail: Every record must be labeled as secondary_licensed or opinion tier.
+    Attribution must be preserved (who said it, when).
+    """
+
+    @abstractmethod
+    async def search(
+        self,
+        issuer_name: str,
+        security_identifier: str | None = None,
+        research_question: str | None = None,
+        period_scope: str | None = None,
+        max_results: int = 10,
+    ) -> list[EvidenceRecord]:
         ...

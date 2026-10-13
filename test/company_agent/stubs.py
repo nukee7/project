@@ -18,10 +18,10 @@ from shared.tools.claims import FindSourceConflicts, ValidateClaims
 from shared.tools.results import ClaimValidationResult, ConflictResult
 from company_agent.tools.base import (
     ExtractEvidence, GetValuationContext, RetrieveSourceRecord,
-    SearchPrimarySources, SourceSearchResult,
+    SearchPrimarySources, SearchSecondarySources, SourceSearchResult,
 )
 from company_agent.tools.registry import ToolRegistry
-from company_agent.testing.stub_llm import StubLLMProvider
+from test.company_agent.stub_llm import StubLLMProvider
 
 
 def _uid() -> str:
@@ -68,12 +68,18 @@ class StubGetMarketCapClassification(GetMarketCapClassification):
 
 class StubGetValuationContext(GetValuationContext):
     async def get_valuation(self, issuer_name, security_identifier=None, as_of_date=None, metrics=None):
-        return {"available": False, "reason": "Valuation context not configured in stub implementation"}
+        return {"available": False, "reason": "Stub — not configured"}
 
 
 class StubValidateClaims(ValidateClaims):
     async def validate(self, claims, evidence_records):
         return ClaimValidationResult(valid_claims=[c.claim_id for c in claims], invalid_claims=[], issues=[])
+
+
+class StubSearchSecondarySources(SearchSecondarySources):
+    async def search(self, issuer_name, security_identifier=None, research_question=None, period_scope=None, max_results=10):
+        source = SourceMetadata(source_id=f"news_{_uid()}", publisher="Stub News", title=f"[Stub] News about {issuer_name}", retrieval_time=datetime.now(), source_tier=SourceTier.SECONDARY_LICENSED)
+        return [EvidenceRecord(evidence_id=f"ev_{_uid()}", source=source, excerpt=f"[Stub] Analysts are generally positive about {issuer_name}. Key stats and news coverage available.", locator="Stub Secondary Sources", extraction_confidence="low", tags=["news", "secondary", "stub"])]
 
 
 def create_stub_registry() -> ToolRegistry:
@@ -86,5 +92,6 @@ def create_stub_registry() -> ToolRegistry:
         get_market_cap_classification=StubGetMarketCapClassification(),
         get_valuation_context=StubGetValuationContext(),
         validate_claims=StubValidateClaims(),
+        search_secondary_sources=StubSearchSecondarySources(),
         llm=StubLLMProvider(),
     )

@@ -349,6 +349,57 @@ class Step3RetrieveEvidence(PipelineStep):
 
 
 # ---------------------------------------------------------------------------
+# Step 3A: Gather secondary reporting (news, analyst, ratings)
+# ---------------------------------------------------------------------------
+
+
+class Step3ASecondaryReporting(PipelineStep):
+    """Gather secondary intelligence — news articles, analyst views, key stats.
+
+    Uses: search_secondary_sources tool.
+    No LLM — the tool fetches and structures the data.
+    Results go into ctx.evidence_records alongside primary evidence.
+    Never blocks the pipeline — secondary data is supplementary.
+    """
+
+    name = "step_3a_secondary_reporting"
+
+    async def execute(self, ctx: WorkflowContext) -> None:
+        ctx.log(self.name, "Gathering secondary reporting")
+
+        issuer_name = _get_issuer_name(ctx)
+        security_id = None
+        if ctx.identity and ctx.identity.resolved_security:
+            sec = ctx.identity.resolved_security
+            if sec.listings:
+                security_id = sec.listings[0].ticker
+
+        try:
+            secondary_records = await ctx.tools.search_secondary_sources.search(
+                issuer_name=issuer_name,
+                security_identifier=security_id,
+                research_question=ctx.request.research_question,
+                period_scope=ctx.request.period_scope,
+                max_results=10,
+            )
+        except Exception as e:
+            ctx.log(self.name, f"Secondary source search failed: {e}")
+            ctx.add_limitation(f"Secondary reporting unavailable: {e}")
+            return
+
+        if secondary_records:
+            ctx.evidence_records.extend(secondary_records)
+            ctx.log(
+                self.name,
+                f"Added {len(secondary_records)} secondary evidence records "
+                f"(news, analyst, stats)",
+            )
+        else:
+            ctx.log(self.name, "No secondary evidence found")
+            ctx.add_limitation("No secondary reporting available for this issuer")
+
+
+# ---------------------------------------------------------------------------
 # Step 4: Extract atomic evidence (unchanged — tool only)
 # ---------------------------------------------------------------------------
 

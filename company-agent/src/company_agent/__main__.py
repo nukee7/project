@@ -10,11 +10,11 @@ import sys
 
 if "--test" in sys.argv:
     import asyncio
-    from company_agent.testing.example_runner import main
+    from test.company_agent.example_runner import main
     asyncio.run(main())
 elif "--live" in sys.argv:
     import asyncio
-    from company_agent.testing.live_llm_runner import main
+    from test.company_agent.live_llm_runner import main
     asyncio.run(main())
 else:
     from company_agent.main import main

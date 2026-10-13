@@ -19,8 +19,8 @@ import os
 
 from company_agent.agent import CompanyAgent
 from company_agent.tools.registry import ToolRegistry
-from company_agent.testing.stubs import create_stub_registry
-from company_agent.testing.stub_llm import StubLLMProvider
+from test.company_agent.stubs import create_stub_registry
+from test.company_agent.stub_llm import StubLLMProvider
 
 logger = logging.getLogger(__name__)
 
@@ -30,14 +30,39 @@ _tools: ToolRegistry | None = None
 
 
 def _create_default_registry() -> ToolRegistry:
-    """Create a ToolRegistry, auto-detecting LLM provider from environment.
+    """Create a ToolRegistry, auto-detecting available providers.
 
-    If OPENAI_API_KEY is set, uses OpenAI. Otherwise uses stubs.
-    All non-LLM tools use stubs regardless (swap for real tools later).
+    Real EDGAR tools are always used (free, no key needed).
+    OpenAI LLM is used if OPENAI_API_KEY is set, otherwise stub LLM.
+    Remaining tools (identity, market_cap, valuation, claims, conflicts)
+    use stubs until real implementations are built.
     """
     registry = create_stub_registry()
 
-    # Try to upgrade to real OpenAI LLM if API key is available
+    # Upgrade to real EDGAR tools (free, no API key)
+    try:
+        from company_agent.tools.edgar.text_store import FilingTextStore
+        from company_agent.tools.edgar.search import EdgarSearchSources
+        from company_agent.tools.edgar.retrieve import EdgarRetrieveSource
+        from company_agent.tools.edgar.extract import EdgarExtractEvidence
+
+        text_store = FilingTextStore()
+        registry.search_primary_sources = EdgarSearchSources()
+        registry.retrieve_source_record = EdgarRetrieveSource(text_store=text_store)
+        registry.extract_evidence = EdgarExtractEvidence(text_store=text_store)
+        logger.info("Using real SEC EDGAR tools for search, retrieval, and extraction")
+    except Exception as e:
+        logger.warning("Failed to initialize EDGAR tools, using stubs: %s", e)
+
+    # Upgrade to real secondary reporting tool (free, no API key)
+    try:
+        from company_agent.tools.secondary.aggregator import SecondarySourceAggregator
+        registry.search_secondary_sources = SecondarySourceAggregator()
+        logger.info("Using real secondary reporting tool (Google News + Yahoo Finance)")
+    except Exception as e:
+        logger.warning("Failed to initialize secondary reporting tool, using stubs: %s", e)
+
+    # Upgrade to real OpenAI LLM if API key is available
     api_key = os.getenv("OPENAI_API_KEY", "")
     if api_key:
         try:
