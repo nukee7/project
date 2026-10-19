@@ -237,6 +237,7 @@ class Step2ResearchPlan(PipelineStep):
                     "regulatory_filings", "earnings_releases", "earnings_transcripts",
                 ],
                 extraction_queries=llm_plan.extraction_queries,
+                secondary_search_queries=llm_plan.secondary_search_queries,
                 notes=llm_plan.notes,
             )
             ctx.research_plan = plan
@@ -374,6 +375,12 @@ class Step3ASecondaryReporting(PipelineStep):
             if sec.listings:
                 security_id = sec.listings[0].ticker
 
+        # Use search queries from the research plan if available
+        search_queries = None
+        if ctx.research_plan and ctx.research_plan.secondary_search_queries:
+            search_queries = ctx.research_plan.secondary_search_queries
+            ctx.log(self.name, f"Using {len(search_queries)} planned search queries")
+
         try:
             secondary_records = await ctx.tools.search_secondary_sources.search(
                 issuer_name=issuer_name,
@@ -381,6 +388,7 @@ class Step3ASecondaryReporting(PipelineStep):
                 research_question=ctx.request.research_question,
                 period_scope=ctx.request.period_scope,
                 max_results=10,
+                search_queries=search_queries,
             )
         except Exception as e:
             ctx.log(self.name, f"Secondary source search failed: {e}")

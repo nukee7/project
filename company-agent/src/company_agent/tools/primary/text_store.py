@@ -1,8 +1,4 @@
-"""Shared text cache between EDGAR retrieve and extract tools.
-
-When EdgarRetrieveSource downloads a filing, it stores the text here.
-When EdgarExtractEvidence needs to parse a filing, it reads from here.
-"""
+"""Shared text cache between primary retrieve and extract tools."""
 
 from __future__ import annotations
 
@@ -24,6 +20,3 @@ class FilingTextStore:
 
     def clear(self) -> None:
         self._cache.clear()
-
-    def __len__(self) -> int:
-        return len(self._cache)

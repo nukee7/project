@@ -32,33 +32,33 @@ _tools: ToolRegistry | None = None
 def _create_default_registry() -> ToolRegistry:
     """Create a ToolRegistry, auto-detecting available providers.
 
-    Real EDGAR tools are always used (free, no key needed).
+    Real BSE India primary tools are always used (free, no key needed).
     OpenAI LLM is used if OPENAI_API_KEY is set, otherwise stub LLM.
-    Remaining tools (identity, market_cap, valuation, claims, conflicts)
-    use stubs until real implementations are built.
+    Remaining tools (identity, market_cap, claims, conflicts) use stubs.
     """
     registry = create_stub_registry()
 
-    # Upgrade to real EDGAR tools (free, no API key)
+    # Upgrade to real primary tools — BSE India (free, no API key)
     try:
-        from company_agent.tools.edgar.text_store import FilingTextStore
-        from company_agent.tools.edgar.search import EdgarSearchSources
-        from company_agent.tools.edgar.retrieve import EdgarRetrieveSource
-        from company_agent.tools.edgar.extract import EdgarExtractEvidence
+        from company_agent.tools.primary.text_store import FilingTextStore
+        from company_agent.tools.primary.search import PrimarySearchSources
+        from company_agent.tools.primary.retrieve import PrimaryRetrieveSource
+        from company_agent.tools.primary.extract import PrimaryExtractEvidence
 
         text_store = FilingTextStore()
-        registry.search_primary_sources = EdgarSearchSources()
-        registry.retrieve_source_record = EdgarRetrieveSource(text_store=text_store)
-        registry.extract_evidence = EdgarExtractEvidence(text_store=text_store)
-        logger.info("Using real SEC EDGAR tools for search, retrieval, and extraction")
+        registry.search_primary_sources = PrimarySearchSources()
+        registry.retrieve_source_record = PrimaryRetrieveSource(text_store=text_store)
+        registry.extract_evidence = PrimaryExtractEvidence(text_store=text_store)
+        logger.info("Using real BSE India primary tools for search, retrieval, and extraction")
     except Exception as e:
-        logger.warning("Failed to initialize EDGAR tools, using stubs: %s", e)
+        logger.warning("Failed to initialize primary tools, using stubs: %s", e)
 
-    # Upgrade to real secondary reporting tool (free, no API key)
+    # Upgrade to real secondary reporting + valuation tool (free, no API key)
+    # SecondarySourceAggregator implements BOTH search() and get_valuation()
     try:
         from company_agent.tools.secondary.aggregator import SecondarySourceAggregator
         registry.search_secondary_sources = SecondarySourceAggregator()
-        logger.info("Using real secondary reporting tool (Google News + Yahoo Finance)")
+        logger.info("Using real secondary tool (Google News India + Yahoo Finance for news, stats, and valuation)")
     except Exception as e:
         logger.warning("Failed to initialize secondary reporting tool, using stubs: %s", e)
 

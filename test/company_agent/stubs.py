@@ -40,8 +40,8 @@ class StubResolveIssuerSecurity(ResolveIssuerSecurity):
 class StubSearchPrimarySources(SearchPrimarySources):
     async def search(self, issuer_name, issuer_identifiers=None, period_scope=None, source_types=None, max_results=20):
         sources = [
-            SourceMetadata(source_id=f"src_{_uid()}", publisher="SEC EDGAR", title=f"{issuer_name} — 10-K Annual Report", source_url=f"https://sec.gov/stub/{_uid()}", publication_date=date(2024, 3, 1), reporting_period=period_scope or "FY2024", retrieval_time=datetime.now(), source_tier=SourceTier.PRIMARY_FILING),
-            SourceMetadata(source_id=f"src_{_uid()}", publisher=f"{issuer_name} Investor Relations", title=f"{issuer_name} — Q4 2024 Earnings Release", source_url=f"https://ir.example.com/stub/{_uid()}", publication_date=date(2024, 1, 28), reporting_period="Q4 2024", retrieval_time=datetime.now(), source_tier=SourceTier.PRIMARY_ISSUER),
+            SourceMetadata(source_id=f"src_{_uid()}", publisher="BSE India", title=f"{issuer_name} — Annual Financial Result", source_url=f"https://bseindia.com/stub/{_uid()}", publication_date=date(2024, 3, 1), reporting_period=period_scope or "FY2024", retrieval_time=datetime.now(), source_tier=SourceTier.PRIMARY_FILING),
+            SourceMetadata(source_id=f"src_{_uid()}", publisher="BSE India", title=f"{issuer_name} — Q4 Financial Result", source_url=f"https://bseindia.com/stub/{_uid()}", publication_date=date(2024, 1, 28), reporting_period="Q4 2024", retrieval_time=datetime.now(), source_tier=SourceTier.PRIMARY_ISSUER),
         ]
         return SourceSearchResult(sources=sources[:max_results], total_available=len(sources), search_query=f"issuer={issuer_name} period={period_scope}")
 
@@ -66,23 +66,22 @@ class StubGetMarketCapClassification(GetMarketCapClassification):
         return MarketCapResult(classification=MarketCapClassification.LARGE_CAP, market_cap_value=150_000_000_000.0, currency="USD", as_of_date=as_of_date or date.today(), policy_version=policy_version or "v1.0", calculation_id=f"mkcap_{_uid()}", share_count_source="stub_share_data", price_source="stub_price_feed")
 
 
-class StubGetValuationContext(GetValuationContext):
-    async def get_valuation(self, issuer_name, security_identifier=None, as_of_date=None, metrics=None):
-        return {"available": False, "reason": "Stub — not configured"}
-
-
 class StubValidateClaims(ValidateClaims):
     async def validate(self, claims, evidence_records):
         return ClaimValidationResult(valid_claims=[c.claim_id for c in claims], invalid_claims=[], issues=[])
 
 
-class StubSearchSecondarySources(SearchSecondarySources):
-    async def search(self, issuer_name, security_identifier=None, research_question=None, period_scope=None, max_results=10):
+class StubSearchSecondarySources(SearchSecondarySources, GetValuationContext):
+    async def search(self, issuer_name, security_identifier=None, research_question=None, period_scope=None, max_results=10, search_queries=None):
         source = SourceMetadata(source_id=f"news_{_uid()}", publisher="Stub News", title=f"[Stub] News about {issuer_name}", retrieval_time=datetime.now(), source_tier=SourceTier.SECONDARY_LICENSED)
-        return [EvidenceRecord(evidence_id=f"ev_{_uid()}", source=source, excerpt=f"[Stub] Analysts are generally positive about {issuer_name}. Key stats and news coverage available.", locator="Stub Secondary Sources", extraction_confidence="low", tags=["news", "secondary", "stub"])]
+        return [EvidenceRecord(evidence_id=f"ev_{_uid()}", source=source, excerpt=f"[Stub] Analysts are generally positive about {issuer_name}.", locator="Stub Secondary Sources", extraction_confidence="low", tags=["news", "secondary", "stub"])]
+
+    async def get_valuation(self, issuer_name, security_identifier=None, as_of_date=None, metrics=None):
+        return {"available": False, "reason": "Stub — not configured"}
 
 
 def create_stub_registry() -> ToolRegistry:
+    secondary = StubSearchSecondarySources()
     return ToolRegistry(
         resolve_issuer_security=StubResolveIssuerSecurity(),
         search_primary_sources=StubSearchPrimarySources(),
@@ -90,8 +89,7 @@ def create_stub_registry() -> ToolRegistry:
         extract_evidence=StubExtractEvidence(),
         find_source_conflicts=StubFindSourceConflicts(),
         get_market_cap_classification=StubGetMarketCapClassification(),
-        get_valuation_context=StubGetValuationContext(),
         validate_claims=StubValidateClaims(),
-        search_secondary_sources=StubSearchSecondarySources(),
+        search_secondary_sources=secondary,
         llm=StubLLMProvider(),
     )

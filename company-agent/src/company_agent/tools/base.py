@@ -124,5 +124,6 @@ class SearchSecondarySources(ABC):
         research_question: str | None = None,
         period_scope: str | None = None,
         max_results: int = 10,
+        search_queries: list[str] | None = None,
     ) -> list[EvidenceRecord]:
         ...

@@ -27,6 +27,7 @@ class ResearchPlan:
     evidence_needs: list[dict[str, str]] = field(default_factory=list)
     source_categories: list[str] = field(default_factory=list)
     extraction_queries: dict[str, str] = field(default_factory=dict)
+    secondary_search_queries: list[str] = field(default_factory=list)
     notes: str | None = None
 
 

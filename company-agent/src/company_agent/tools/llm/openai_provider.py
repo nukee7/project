@@ -42,10 +42,21 @@ Respond ONLY with valid JSON matching this exact structure:
     "regulatory_filings": "what to extract from filings",
     "earnings_releases": "what to extract from earnings"
   },
+  "secondary_search_queries": [
+    "targeted search query 1 for Google News",
+    "targeted search query 2 for Google News"
+  ],
   "notes": "any planning notes"
 }
-Keep evidence_needs focused on the question asked. Do not plan for topics the question doesn't cover.
-Source categories must be from: regulatory_filings, earnings_releases, earnings_transcripts, investor_presentations, secondary_reporting, analyst_opinion."""
+Rules:
+- Keep evidence_needs focused on the question asked. Do not plan for topics the question doesn't cover.
+- Source categories must be from: regulatory_filings, earnings_releases, earnings_transcripts, investor_presentations, secondary_reporting, analyst_opinion.
+- secondary_search_queries are Google News search strings. Make them specific to the research question. Include the company name and keywords related to the question. Generate 2-4 targeted queries.
+  Example: For "What are the competitive risks for Reliance?" generate queries like:
+    "Reliance Industries competition threats market share"
+    "Reliance Jio vs Airtel competitive pressure"
+    "Reliance retail competition Amazon Flipkart"
+  Do NOT generate generic queries like "Reliance Industries stock" or "Reliance news"."""
 
 RESEARCH_PLAN_USER = """Company: {issuer_name} ({security_info})
 Market cap: {market_cap_info}
@@ -204,6 +215,7 @@ class OpenAILLMProvider(LLMProvider):
                 "earnings_transcripts",
             ]),
             extraction_queries=data.get("extraction_queries", {}),
+            secondary_search_queries=data.get("secondary_search_queries", []),
             notes=data.get("notes"),
         )
 

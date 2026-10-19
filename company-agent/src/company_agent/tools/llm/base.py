@@ -26,6 +26,8 @@ class LLMResearchPlan:
     source_categories: list[str] = field(default_factory=list)
     extraction_queries: dict[str, str] = field(default_factory=dict)
     # Maps source type → what to extract from it
+    secondary_search_queries: list[str] = field(default_factory=list)
+    # Targeted search queries for news/analyst sources (used by Step 3A)
     notes: str | None = None
 
 

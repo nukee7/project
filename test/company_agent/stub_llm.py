@@ -24,6 +24,10 @@ class StubLLMProvider(LLMProvider):
                 "earnings_releases": f"Extract headline numbers for {issuer_name}",
                 "earnings_transcripts": f"Extract management commentary for: {research_question}",
             },
+            secondary_search_queries=[
+                f"{issuer_name} {research_question[:30]}",
+                f"{issuer_name} analyst rating outlook",
+            ],
             notes=f"[Stub plan] Depth: {research_depth}. Question: {research_question}",
         )
 
