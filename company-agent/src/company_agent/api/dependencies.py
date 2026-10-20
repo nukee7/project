@@ -38,6 +38,35 @@ def _create_default_registry() -> ToolRegistry:
     """
     registry = create_stub_registry()
 
+    # Upgrade shared tools to real implementations (free, no API key)
+    try:
+        from shared.tools.implementations.bse_identity import BseIdentityResolver
+        registry.resolve_issuer_security = BseIdentityResolver()
+        logger.info("Using real BSE identity resolver")
+    except Exception as e:
+        logger.warning("Failed to init identity resolver: %s", e)
+
+    try:
+        from shared.tools.implementations.yahoo_market_cap import YahooMarketCapClassifier
+        registry.get_market_cap_classification = YahooMarketCapClassifier()
+        logger.info("Using real Yahoo Finance market cap classifier")
+    except Exception as e:
+        logger.warning("Failed to init market cap classifier: %s", e)
+
+    try:
+        from shared.tools.implementations.conflict_detector import RealConflictDetector
+        registry.find_source_conflicts = RealConflictDetector()
+        logger.info("Using real conflict detector")
+    except Exception as e:
+        logger.warning("Failed to init conflict detector: %s", e)
+
+    try:
+        from shared.tools.implementations.claim_validator import RealClaimValidator
+        registry.validate_claims = RealClaimValidator()
+        logger.info("Using real claim validator")
+    except Exception as e:
+        logger.warning("Failed to init claim validator: %s", e)
+
     # Upgrade to real primary tools — BSE India (free, no API key)
     try:
         from company_agent.tools.primary.text_store import FilingTextStore
