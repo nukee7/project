@@ -2,6 +2,9 @@
 *.md
 **/*.md
 
+# Exception — frontend plan (tracked)
+!frontend-plan.md
+
 # Documentation folder
 docs/*
 
